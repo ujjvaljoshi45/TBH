@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:tobe_honest/screens/login_screen.dart';
 import 'package:tobe_honest/screens/profile_screen.dart';
 
 import 'add_post_screen.dart';
@@ -11,8 +13,14 @@ var firestore = FirebaseFirestore.instance;
 class PostsScreen extends StatelessWidget {
   static String postsScreenId = 'posts_screen';
   const PostsScreen({Key? key}) : super(key: key);
+  void initFirebase() async {
+    await Firebase.initializeApp();
+    print('App Init');
+  }
+
   @override
   Widget build(BuildContext context) {
+    initFirebase();
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -74,50 +82,114 @@ class PostsScreen extends StatelessWidget {
           )
         ],
       ),
-      body: const PostsList(),
+      body: const PostsStream(),
     );
   }
 }
 
-class PostsList extends StatefulWidget {
-  const PostsList({Key? key}) : super(key: key);
+class PostsStream extends StatelessWidget {
+  const PostsStream({Key? key}) : super(key: key);
 
-  @override
-  State<PostsList> createState() => _PostsListState();
-}
+  Future<void> getPostUser(postUserUid) async {
+    print('Getting User');
+    final CollectionReference usersCollection =
+        FirebaseFirestore.instance.collection('users');
+    final DocumentSnapshot snapshot =
+        await usersCollection.doc(postUserUid).get();
 
-class _PostsListState extends State<PostsList> {
-  List<PostTile> postsList = [const PostTile()];
-  void getDataFromFirestore() async {
-    print('Function Called');
-    await Firebase.initializeApp();
-    print('FIREBASE INITIALIZED');
-    var posts = await firestore.collection('posts').get();
-    print('POSTS GOT');
-    for (var post in posts.docs) {
-      print('Post: $post');
+    if (snapshot.exists) {
+      print('Snapshot exists');
+      final Map<String, dynamic>? userData =
+          snapshot.data() as Map<String, dynamic>?;
+      if (userData != null) {
+        // Access individual fields
+        final String name = userData['name'] ?? '';
+        final String email = userData['email'] ?? '';
+
+        // Do something with the user data
+        print('Name: $name');
+        print('Email: $email');
+      }
+    } else {
+      print('Not Exists');
     }
   }
 
   @override
-  void initState() {
-    super.initState();
-    getDataFromFirestore();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        return const PostTile();
-      },
-      itemCount: postsList.length,
-    );
+    return StreamBuilder(
+        stream: firestore
+            .collection('posts')
+            .orderBy('timestamp', descending: true)
+            .snapshots(),
+        builder: (context, snapshot) {
+          List<PostTile> postTiles = [];
+          if (!snapshot.hasData) {
+            return const Center(
+              child: CircularProgressIndicator(
+                backgroundColor: Colors.white,
+              ),
+            );
+          }
+          final posts = snapshot.data!.docs;
+          for (var post in posts) {
+            final postText = post.get('postString');
+            final postUserUid = post.get('uid');
+            getPostUser(postUserUid);
+            postTiles.add(PostTile(
+              postString: postText,
+            ));
+          }
+          return ListView(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+            children: postTiles,
+          );
+        });
   }
 }
 
+// class PostsList extends StatefulWidget {
+//   const PostsList({Key? key}) : super(key: key);
+//
+//   @override
+//   State<PostsList> createState() => _PostsListState();
+// }
+//
+// class _PostsListState extends State<PostsList> {
+//   List<PostTile> postsList = [const PostTile()];
+//   void getDataFromFirestore() async {
+//     print('Function Called');
+//     await Firebase.initializeApp();
+//     print('FIREBASE INITIALIZED');
+//     var posts = await firestore.collection('posts').get();
+//     print('POSTS GOT');
+//     for (var post in posts.docs) {
+//       print('Post: $post');
+//     }
+//   }
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     getDataFromFirestore();
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return ListView.builder(
+//       itemBuilder: (context, index) {
+//         return const PostTile();
+//       },
+//       itemCount: postsList.length,
+//     );
+//   }
+// }
+
 class PostTile extends StatelessWidget {
-  const PostTile({Key? key}) : super(key: key);
+  var postString = '';
+
+  PostTile({required this.postString});
 
   @override
   Widget build(BuildContext context) {
@@ -140,11 +212,11 @@ class PostTile extends StatelessWidget {
             'Username',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          subtitle: const Padding(
-            padding: EdgeInsets.all(8.0),
+          subtitle: Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Text(
-              'the post containing some kind of a text will be present over here it is the most important part',
-              style: TextStyle(
+              postString,
+              style: const TextStyle(
                 fontSize: 24.0,
               ),
             ),
