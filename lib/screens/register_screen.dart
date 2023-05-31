@@ -1,7 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tobe_honest/screens/posts_screen.dart';
 
 import '../constants.dart';
+
+FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
 class RegisterScreen extends StatefulWidget {
   static String registerScreenId = 'register_screen';
@@ -13,12 +18,19 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   bool showPassword = false;
+  late String email;
+  late String password;
+  late String reEnterPassword;
+  late User user;
+  bool loggedIn = false;
+  String message = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
+          textAlign: TextAlign.start,
           'ToBeHonest',
           style: TextStyle(color: Colors.white),
         ),
@@ -34,6 +46,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Text(
+                message,
+                style: const TextStyle(
+                    backgroundColor: Colors.red,
+                    color: Colors.white,
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
             const Padding(
               padding: EdgeInsets.all(10.0),
               //TODO: Animate Text
@@ -48,6 +71,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40.0),
               child: TextField(
+                  onChanged: (newEmail) => email = newEmail,
                   keyboardType: TextInputType.emailAddress,
                   style: const TextStyle(color: Colors.black),
                   decoration: kInputDecoration.copyWith(hintText: 'Email')),
@@ -56,6 +80,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
               child: TextField(
+                onChanged: (newPassword) => password = newPassword,
                 keyboardType: TextInputType.visiblePassword,
                 style: const TextStyle(color: Colors.black),
                 obscureText: true,
@@ -67,6 +92,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40.0),
               child: TextField(
+                onChanged: (newReEnterPassword) =>
+                    reEnterPassword = newReEnterPassword,
                 keyboardType: TextInputType.visiblePassword,
                 style: const TextStyle(color: Colors.black),
                 obscureText: !showPassword,
@@ -92,8 +119,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   elevation: 10,
                 ),
-                onPressed: () {
-                  Navigator.pushNamed(context, PostsScreen.postsScreenId);
+                onPressed: () async {
+                  await Firebase.initializeApp();
+                  if (password == reEnterPassword &&
+                      (email.isNotEmpty && password.isNotEmpty)) {
+                    try {
+                      await firebaseAuth.createUserWithEmailAndPassword(
+                          email: email, password: password);
+                      var user = firebaseAuth.currentUser;
+                      if (!user!.emailVerified) {
+                        await user.sendEmailVerification();
+                      }
+                      Navigator.pushNamed(context, PostsScreen.postsScreenId);
+                    } catch (e) {
+                      setState(() {
+                        message = 'Error In Registering';
+                      });
+                      if (kDebugMode) {
+                        print("Message: $message");
+                      }
+                    }
+                  }
                 },
                 child: const Text('Register'),
               ),

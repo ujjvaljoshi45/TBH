@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "385666580354",
+    "project_id": "tobehonest-be7ed",
+    "storage_bucket": "tobehonest-be7ed.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:385666580354:android:385b7a2b2a435aff90199b",
+        "android_client_info": {
+          "package_name": "com.ujjval.tobehonest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3pJA0Ph37CKGZo-GPB6iDZjvbAufILxQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
