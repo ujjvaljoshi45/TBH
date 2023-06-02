@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:tobe_honest/screens/login_screen.dart';
 import 'package:tobe_honest/screens/profile_screen.dart';
 
 import 'add_post_screen.dart';
@@ -11,16 +10,18 @@ import 'add_post_screen.dart';
 var firestore = FirebaseFirestore.instance;
 
 class PostsScreen extends StatelessWidget {
+  User? user;
+  String? userDisplayName = '';
   static String postsScreenId = 'posts_screen';
-  const PostsScreen({Key? key}) : super(key: key);
+  PostsScreen({super.key, this.user});
   void initFirebase() async {
     await Firebase.initializeApp();
-    print('App Init');
   }
 
   @override
   Widget build(BuildContext context) {
-    initFirebase();
+    final args = ModalRoute.of(context)!.settings.arguments as User;
+    user = args;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -33,7 +34,7 @@ class PostsScreen extends StatelessWidget {
                   child: Container(
                     padding: EdgeInsets.only(
                         bottom: MediaQuery.of(context).viewInsets.bottom),
-                    child: const AddPostScreen(),
+                    child: AddPostScreen(user: user),
                   ),
                 );
               });
@@ -61,18 +62,9 @@ class PostsScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.search_rounded,
-                size: 30.0,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: IconButton(
               onPressed: () {
-                Navigator.pushNamed(context, ProfileScreen.profileScreenId);
+                Navigator.pushNamed(context, ProfileScreen.profileScreenId,
+                    arguments: user?.uid);
               },
               icon: const Icon(
                 Icons.person_rounded,
@@ -89,31 +81,6 @@ class PostsScreen extends StatelessWidget {
 
 class PostsStream extends StatelessWidget {
   const PostsStream({Key? key}) : super(key: key);
-
-  Future<void> getPostUser(postUserUid) async {
-    print('Getting User');
-    final CollectionReference usersCollection =
-        FirebaseFirestore.instance.collection('users');
-    final DocumentSnapshot snapshot =
-        await usersCollection.doc(postUserUid).get();
-
-    if (snapshot.exists) {
-      print('Snapshot exists');
-      final Map<String, dynamic>? userData =
-          snapshot.data() as Map<String, dynamic>?;
-      if (userData != null) {
-        // Access individual fields
-        final String name = userData['name'] ?? '';
-        final String email = userData['email'] ?? '';
-
-        // Do something with the user data
-        print('Name: $name');
-        print('Email: $email');
-      }
-    } else {
-      print('Not Exists');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -134,10 +101,12 @@ class PostsStream extends StatelessWidget {
           final posts = snapshot.data!.docs;
           for (var post in posts) {
             final postText = post.get('postString');
-            final postUserUid = post.get('uid');
-            getPostUser(postUserUid);
+            final postUser = post.get('postUser');
+            final postUserUid = post.get('userUid');
             postTiles.add(PostTile(
+              postUserName: postUser,
               postString: postText,
+              postUserUid: postUserUid,
             ));
           }
           return ListView(
@@ -149,47 +118,15 @@ class PostsStream extends StatelessWidget {
   }
 }
 
-// class PostsList extends StatefulWidget {
-//   const PostsList({Key? key}) : super(key: key);
-//
-//   @override
-//   State<PostsList> createState() => _PostsListState();
-// }
-//
-// class _PostsListState extends State<PostsList> {
-//   List<PostTile> postsList = [const PostTile()];
-//   void getDataFromFirestore() async {
-//     print('Function Called');
-//     await Firebase.initializeApp();
-//     print('FIREBASE INITIALIZED');
-//     var posts = await firestore.collection('posts').get();
-//     print('POSTS GOT');
-//     for (var post in posts.docs) {
-//       print('Post: $post');
-//     }
-//   }
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     getDataFromFirestore();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return ListView.builder(
-//       itemBuilder: (context, index) {
-//         return const PostTile();
-//       },
-//       itemCount: postsList.length,
-//     );
-//   }
-// }
-
 class PostTile extends StatelessWidget {
   var postString = '';
-
-  PostTile({required this.postString});
+  var postUserName = '';
+  var postUserUid = '';
+  PostTile(
+      {super.key,
+      required this.postString,
+      required this.postUserName,
+      required this.postUserUid});
 
   @override
   Widget build(BuildContext context) {
@@ -199,7 +136,8 @@ class PostTile extends StatelessWidget {
         elevation: 10,
         child: ListTile(
           onLongPress: () {
-            Navigator.pushNamed(context, ProfileScreen.profileScreenId);
+            Navigator.pushNamed(context, ProfileScreen.profileScreenId,
+                arguments: postUserUid);
           },
           leading: const Padding(
             padding: EdgeInsets.all(8.0),
@@ -208,9 +146,9 @@ class PostTile extends StatelessWidget {
               color: Colors.white,
             ),
           ),
-          title: const Text(
-            'Username',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Text(
+            postUserName,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           subtitle: Padding(
             padding: const EdgeInsets.all(8.0),

@@ -1,14 +1,42 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:tobe_honest/screens/home_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   static String profileScreenId = 'profile_screen';
-  ProfileScreen({Key? key}) : super(key: key);
-  User? user = FirebaseAuth.instance.currentUser;
-  // String userName = user != null ? user!.displayName.toString() : 'User';
+  const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  late String userUid;
+  late String userDisplayName = '';
+  bool gotDisplayName = false;
+
+  Future<void> getUser(String uid) async {
+    await Firebase.initializeApp();
+    var docRef = await FirebaseFirestore.instance.collection('myusers').get();
+    for (var doc in docRef.docs) {
+      if (doc.get('uid') == uid) {
+        setState(() {
+          userDisplayName = doc.get('displayName');
+          gotDisplayName = true;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!gotDisplayName) {
+      final args = ModalRoute.of(context)!.settings.arguments as String;
+      userUid = args;
+      getUser(userUid);
+    }
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -30,8 +58,7 @@ class ProfileScreen extends StatelessWidget {
             child: IconButton(
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
-                Navigator.popUntil(
-                    context, ModalRoute.withName(HomeScreen.homeScreenId));
+                callNavigator();
               },
               icon: const Icon(
                 Icons.logout,
@@ -55,7 +82,7 @@ class ProfileScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                '${FirebaseAuth.instance.currentUser!.email}',
+                userDisplayName,
                 style: const TextStyle(
                     fontSize: 32.0, fontWeight: FontWeight.bold),
               ),
@@ -65,4 +92,7 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
+
+  void callNavigator() =>
+      Navigator.popUntil(context, ModalRoute.withName(HomeScreen.homeScreenId));
 }
