@@ -60,8 +60,11 @@ class AddPostScreen extends StatelessWidget {
             ),
             ElevatedButton(
                 onPressed: () {
-                  createNewPost();
-                  Navigator.pop(context);
+                  String tempPostString = postString;
+                  if (tempPostString.replaceAll(" ", "").isNotEmpty) {
+                    createNewPost();
+                    Navigator.pop(context);
+                  }
                 },
                 child: const Text('Add'))
           ],

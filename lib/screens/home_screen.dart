@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tobe_honest/screens/login_screen.dart';
-import 'package:tobe_honest/screens/register_screen.dart';
+import 'package:tobe_honest/screens/login/login_screen.dart';
+import 'package:tobe_honest/screens/register/register_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   static String homeScreenId = 'home_screen';

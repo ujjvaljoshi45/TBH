@@ -4,7 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:tobe_honest/screens/profile_screen.dart';
+import 'package:tobe_honest/screens/search_screen.dart';
+import 'package:top_modal_sheet/top_modal_sheet.dart';
 
+import '../../widget/post_tile.dart';
 import 'add_post_screen.dart';
 
 var firestore = FirebaseFirestore.instance;
@@ -46,10 +49,27 @@ class PostsScreen extends StatelessWidget {
       ),
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text(
-          textAlign: TextAlign.start,
-          'ToBeHonest',
-          style: TextStyle(color: Colors.white),
+        title: Row(
+          children: [
+            const Expanded(
+              flex: 4,
+              child: Text(
+                textAlign: TextAlign.start,
+                'ToBeHonest',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            const Expanded(flex: 4, child: SizedBox()),
+            Expanded(
+              flex: 1,
+              child: IconButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, SearchScreen.searchScreenId);
+                },
+                icon: const Icon(Icons.search_rounded),
+              ),
+            ),
+          ],
         ),
         elevation: 20,
         shadowColor: Colors.blueGrey[500],
@@ -64,7 +84,7 @@ class PostsScreen extends StatelessWidget {
             child: IconButton(
               onPressed: () {
                 Navigator.pushNamed(context, ProfileScreen.profileScreenId,
-                    arguments: user?.uid);
+                    arguments: [user?.uid, true]);
               },
               icon: const Icon(
                 Icons.person_rounded,
@@ -115,57 +135,5 @@ class PostsStream extends StatelessWidget {
             children: postTiles,
           );
         });
-  }
-}
-
-class PostTile extends StatelessWidget {
-  var postString = '';
-  var postUserName = '';
-  var postUserUid = '';
-  PostTile(
-      {super.key,
-      required this.postString,
-      required this.postUserName,
-      required this.postUserUid});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        elevation: 10,
-        child: ListTile(
-          onLongPress: () {
-            Navigator.pushNamed(context, ProfileScreen.profileScreenId,
-                arguments: postUserUid);
-          },
-          leading: const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Icon(
-              Icons.person,
-              color: Colors.white,
-            ),
-          ),
-          title: Text(
-            postUserName,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              postString,
-              style: const TextStyle(
-                fontSize: 24.0,
-              ),
-            ),
-          ),
-          isThreeLine: true,
-          shape: const RoundedRectangleBorder(
-              side: BorderSide(width: 2.0, color: Colors.blueGrey),
-              borderRadius: BorderRadius.all(Radius.circular(20.0))),
-          contentPadding: const EdgeInsets.all(8.0),
-        ),
-      ),
-    );
   }
 }
