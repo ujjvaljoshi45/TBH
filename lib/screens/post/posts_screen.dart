@@ -25,76 +25,81 @@ class PostsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as User;
     user = args;
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-              isScrollControlled: true,
-              isDismissible: true,
-              context: context,
-              builder: (context) {
-                return SingleChildScrollView(
-                  child: Container(
-                    padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom),
-                    child: AddPostScreen(user: user),
-                  ),
-                );
-              });
-        },
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-        elevation: 10.0,
-        child: const Icon(Icons.add),
-      ),
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Row(
-          children: [
-            const Expanded(
-              flex: 4,
-              child: Text(
-                textAlign: TextAlign.start,
-                'ToBeHonest',
-                style: TextStyle(color: Colors.white),
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            showModalBottomSheet(
+                isScrollControlled: true,
+                isDismissible: true,
+                context: context,
+                builder: (context) {
+                  return SingleChildScrollView(
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom),
+                      child: AddPostScreen(user: user),
+                    ),
+                  );
+                });
+          },
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          elevation: 10.0,
+          child: const Icon(Icons.add),
+        ),
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Row(
+            children: [
+              const Expanded(
+                flex: 4,
+                child: Text(
+                  textAlign: TextAlign.start,
+                  'ToBeHonest',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
-            ),
-            const Expanded(flex: 4, child: SizedBox()),
-            Expanded(
-              flex: 1,
+              const Expanded(flex: 4, child: SizedBox()),
+              Expanded(
+                flex: 1,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, SearchScreen.searchScreenId);
+                  },
+                  icon: const Icon(Icons.search_rounded),
+                ),
+              ),
+            ],
+          ),
+          elevation: 20,
+          shadowColor: Colors.blueGrey[500],
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                bottomRight: Radius.circular(15.0),
+                bottomLeft: Radius.circular(15.0)),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: IconButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, SearchScreen.searchScreenId);
+                  Navigator.pushNamed(context, ProfileScreen.profileScreenId,
+                      arguments: [user?.uid, true]);
                 },
-                icon: const Icon(Icons.search_rounded),
+                icon: const Icon(
+                  Icons.person_rounded,
+                  size: 30.0,
+                ),
               ),
-            ),
+            )
           ],
         ),
-        elevation: 20,
-        shadowColor: Colors.blueGrey[500],
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              bottomRight: Radius.circular(15.0),
-              bottomLeft: Radius.circular(15.0)),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, ProfileScreen.profileScreenId,
-                    arguments: [user?.uid, true]);
-              },
-              icon: const Icon(
-                Icons.person_rounded,
-                size: 30.0,
-              ),
-            ),
-          )
-        ],
+        body: const PostsStream(),
       ),
-      body: const PostsStream(),
     );
   }
 }

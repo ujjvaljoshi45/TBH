@@ -1,10 +1,30 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tobe_honest/screens/login/login_screen.dart';
+import 'package:tobe_honest/screens/post/posts_screen.dart';
 import 'package:tobe_honest/screens/register/register_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   static String homeScreenId = 'home_screen';
   const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  User? user;
+  @override
+  void initState() {
+    super.initState();
+    user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      Future(() {
+        Navigator.pushNamed(context, PostsScreen.postsScreenId,
+            arguments: user);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

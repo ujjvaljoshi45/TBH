@@ -298,7 +298,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (email.isNotEmpty) {
       await Firebase.initializeApp();
       var mAuth = FirebaseAuth.instance;
-
+      User? user = mAuth.currentUser;
+      await user?.sendEmailVerification();
       setState(() {
         showSpinner = false;
         showDialog(
