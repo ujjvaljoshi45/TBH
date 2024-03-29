@@ -4,6 +4,7 @@ import 'package:tobe_honest/screens/login/login_screen.dart';
 import 'package:tobe_honest/screens/post/posts_screen.dart';
 import 'package:tobe_honest/screens/register/register_screen.dart';
 
+// Home Screen of the App (Second Screen)
 class HomeScreen extends StatefulWidget {
   static String homeScreenId = 'home_screen';
   const HomeScreen({Key? key}) : super(key: key);
@@ -17,13 +18,16 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // Get the current user if any
     user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       Future(() {
+        // If User is found then navigate to PostsScreen with user as argument
         Navigator.pushNamed(context, PostsScreen.postsScreenId,
             arguments: user);
       });
     }
+    // Else it will run the build method
   }
 
   @override

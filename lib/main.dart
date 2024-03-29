@@ -12,33 +12,54 @@ import 'package:tobe_honest/screens/search_screen.dart';
 import 'package:tobe_honest/screens/splash_screen.dart';
 
 void main() async {
+  // Enter in to full screen mode for android
   if (Platform.isAndroid) {
     enterFullScreen();
   }
+  // Initialize Firebase
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  // Run the app
   runApp(const MyApp());
 }
 
+// Enter in to full screen mode for android
 void enterFullScreen() {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
 }
 
+// Initialize Firebase (not using this function)
 void initFirebase() async => await Firebase.initializeApp();
 
+// Entry point of the app
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Created a MaterialApp widget
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false, // Remove debug banner
+      // Set the theme of the app (dark mode)
       theme: ThemeData.dark().copyWith(
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.blueGrey,
+        ),
+        // Theme for the card widget
+        cardTheme: CardTheme(
+          color: Colors.blueGrey[700],
+        ),
+        // Color scheme for the app
         colorScheme: ColorScheme.fromSwatch(
           primarySwatch: Colors.blueGrey,
         ),
       ),
-      initialRoute: SplashScreen.splashScreenId,
+
+      // Routing of the app
+      initialRoute: SplashScreen.splashScreenId, //Set Initial Route
+
+      // Define all the routes of the app
       routes: {
         SplashScreen.splashScreenId: (context) => const SplashScreen(),
         HomeScreen.homeScreenId: (context) => const HomeScreen(),

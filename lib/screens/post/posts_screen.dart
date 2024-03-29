@@ -5,7 +5,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:tobe_honest/screens/profile_screen.dart';
 import 'package:tobe_honest/screens/search_screen.dart';
-import 'package:top_modal_sheet/top_modal_sheet.dart';
 
 import '../../widget/post_tile.dart';
 import 'add_post_screen.dart';
@@ -25,81 +24,76 @@ class PostsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as User;
     user = args;
-    return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
-      child: Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showModalBottomSheet(
-                isScrollControlled: true,
-                isDismissible: true,
-                context: context,
-                builder: (context) {
-                  return SingleChildScrollView(
-                    child: Container(
-                      padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).viewInsets.bottom),
-                      child: AddPostScreen(user: user),
-                    ),
-                  );
-                });
-          },
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-          elevation: 10.0,
-          child: const Icon(Icons.add),
-        ),
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Row(
-            children: [
-              const Expanded(
-                flex: 4,
-                child: Text(
-                  textAlign: TextAlign.start,
-                  'ToBeHonest',
-                  style: TextStyle(color: Colors.white),
-                ),
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+              isScrollControlled: true,
+              isDismissible: true,
+              context: context,
+              builder: (context) {
+                return SingleChildScrollView(
+                  child: Container(
+                    padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom),
+                    child: AddPostScreen(user: user),
+                  ),
+                );
+              });
+        },
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+        elevation: 10.0,
+        child: const Icon(Icons.add),
+      ),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Row(
+          children: [
+            const Expanded(
+              flex: 4,
+              child: Text(
+                textAlign: TextAlign.start,
+                'ToBeHonest',
+                style: TextStyle(color: Colors.white),
               ),
-              const Expanded(flex: 4, child: SizedBox()),
-              Expanded(
-                flex: 1,
-                child: IconButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, SearchScreen.searchScreenId);
-                  },
-                  icon: const Icon(Icons.search_rounded),
-                ),
-              ),
-            ],
-          ),
-          elevation: 20,
-          shadowColor: Colors.blueGrey[500],
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                bottomRight: Radius.circular(15.0),
-                bottomLeft: Radius.circular(15.0)),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            ),
+            const Expanded(flex: 4, child: SizedBox()),
+            Expanded(
+              flex: 1,
               child: IconButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, ProfileScreen.profileScreenId,
-                      arguments: [user?.uid, true]);
+                  Navigator.pushNamed(context, SearchScreen.searchScreenId);
                 },
-                icon: const Icon(
-                  Icons.person_rounded,
-                  size: 30.0,
-                ),
+                icon: const Icon(Icons.search_rounded),
               ),
-            )
+            ),
           ],
         ),
-        body: const PostsStream(),
+        elevation: 20,
+        shadowColor: Colors.blueGrey[500],
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              bottomRight: Radius.circular(15.0),
+              bottomLeft: Radius.circular(15.0)),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: IconButton(
+              onPressed: () {
+                Navigator.pushNamed(context, ProfileScreen.profileScreenId,
+                    arguments: [user?.uid, true]);
+              },
+              icon: const Icon(
+                Icons.person_rounded,
+                size: 30.0,
+              ),
+            ),
+          )
+        ],
       ),
+      body: const PostsStream(),
     );
   }
 }

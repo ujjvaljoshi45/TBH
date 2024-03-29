@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tobe_honest/screens/home_screen.dart';
 
+// Splace Screen of the App (First Screen)
 class SplashScreen extends StatefulWidget {
   static String splashScreenId = 'splash_screen';
   const SplashScreen({Key? key}) : super(key: key);

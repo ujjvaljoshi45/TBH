@@ -19,6 +19,7 @@ class PostTile extends StatelessWidget {
       child: Card(
         elevation: 10,
         child: ListTile(
+          isThreeLine: true,
           onLongPress: () {
             Navigator.pushNamed(context, ProfileScreen.profileScreenId,
                 arguments: [postUserUid, false]);
@@ -51,7 +52,6 @@ class PostTile extends StatelessWidget {
                   arguments: [postUserUid, false]);
             },
           ),
-          isThreeLine: true,
           shape: const RoundedRectangleBorder(
               side: BorderSide(width: 2.0, color: Colors.blueGrey),
               borderRadius: BorderRadius.all(Radius.circular(20.0))),

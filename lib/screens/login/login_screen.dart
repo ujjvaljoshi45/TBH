@@ -5,8 +5,10 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:tobe_honest/constants.dart';
 import 'package:tobe_honest/screens/post/posts_screen.dart';
 
+// Firebase Authentication instance
 FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
+// Login Screen of the App (Third Screen)
 class LoginScreen extends StatefulWidget {
   static String loginScreenId = 'login_screen';
   const LoginScreen({Key? key}) : super(key: key);
@@ -16,18 +18,25 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  late String email = '';
-  late String password = '';
-  bool isLoggedIn = false;
-  String message = '';
-  bool showSpinner = false;
+  late String email = ''; // The email that user will enter in the text field
+  late String password =
+      ''; // The password that user will enter in the text field
+  bool isLoggedIn = false; // To check if user is logged in or not
+  String message = ''; // To show error message
+  bool showSpinner = false; // To show spinner while user is logging in
 
+  // Authenticate the user
   Future<User?> authenticateUser() async {
     email.trim();
     password.trim();
+
     await Firebase.initializeApp();
+
     User? user;
+
+    // Check if email and password is empty
     if (email.isEmpty || password.isEmpty) {
+      // Show error message Dialog box
       setState(() {
         showSpinner = false;
         showDialog(
@@ -77,6 +86,8 @@ class _LoginScreenState extends State<LoginScreen> {
       });
       return null;
     }
+
+    // Try to login the user
     try {
       await firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
@@ -192,6 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return user;
   }
 
+  // Forget Password
   Future<void> runForgetPassword() async {
     if (email.isNotEmpty) {
       await Firebase.initializeApp();
@@ -294,6 +306,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // Resend Verification Link
   Future<void> resendVerificationLink() async {
     if (email.isNotEmpty) {
       await Firebase.initializeApp();
@@ -398,12 +411,15 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // Call the PostsScreen
   void callNavigator(user) {
     Navigator.pushNamed(context, PostsScreen.postsScreenId, arguments: user);
   }
 
+  // AppBar of the Login Screen
   AppBar loginAppBar() {
     return AppBar(
+      backgroundColor: Colors.blueGrey[700],
       automaticallyImplyLeading: false,
       title: const Text(
         textAlign: TextAlign.start,
@@ -426,6 +442,7 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: loginAppBar(),
       body: Center(
         child: ModalProgressHUD(
+          // Show spinner while some async task is running
           inAsyncCall: showSpinner,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -496,7 +513,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     showSpinner = true;
                   });
 
+                  // Run Method to Authenticate the user
                   var user = await authenticateUser();
+                  // if user is not null then call the PostsScreen
                   if (isLoggedIn) {
                     callNavigator(user);
                   }

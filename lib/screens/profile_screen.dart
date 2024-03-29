@@ -104,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       final xFile = await _imagePicker.pickImage(
                           source: ImageSource.gallery);
                       if (xFile?.path != null) {
-                        uploadFile(xFile, context);
+                        await uploadFile(xFile, context);
                         setState(() {
                           _photo = File(xFile!.path);
                         });
@@ -133,7 +133,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 final xFile = await _imagePicker.pickImage(
                                     source: ImageSource.gallery);
                                 if (xFile?.path != null) {
-                                  uploadFile(xFile, context);
+                                  await uploadFile(xFile, context);
                                   setState(() {
                                     _photo = File(xFile!.path);
                                   });

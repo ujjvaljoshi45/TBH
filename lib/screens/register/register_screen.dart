@@ -7,8 +7,10 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:tobe_honest/screens/login/login_screen.dart';
 import '../../constants.dart';
 
+// Firebase Auth Instance
 FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
+// Register Screen of the App
 class RegisterScreen extends StatefulWidget {
   static String registerScreenId = 'register_screen';
   const RegisterScreen({Key? key}) : super(key: key);
@@ -18,19 +20,21 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  bool showPassword = false;
-  late String email = '';
-  late String password = '';
-  late String reEnterPassword = '';
-  late String firstName = '';
-  late String lastName = '';
-  bool showSpinner = false;
-  bool loggedIn = false;
-  String message = '';
+  bool showPassword = false; // Show Password
+  late String email = ''; // Email
+  late String password = ''; // Password
+  late String reEnterPassword = ''; // Re-Enter Password
+  late String firstName = ''; // First Name
+  late String lastName = ''; // Last Name
+  bool showSpinner = false; // Show Spinner
+  bool loggedIn = false; // Logged In
+  String message = ''; // Error Message
 
+  // Save New User
   Future<User?> saveNewUser() async {
     await Firebase.initializeApp();
 
+    // Check if all fields are filled
     if (password == reEnterPassword) {
       try {
         await firebaseAuth.createUserWithEmailAndPassword(
@@ -50,6 +54,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         //   debugPrint('dint work');
         // }
 
+        // Get User and Add to Firestore Database
         user.reload();
         var updatedUser = firebaseAuth.currentUser;
 
@@ -67,6 +72,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         setState(() {
           loggedIn = true;
           showSpinner = false;
+
+          // Show Dialog Box 'Verification Link Send'
           showDialog(
             context: context,
             builder: (context) {
@@ -118,6 +125,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       } catch (e) {
         setState(() {
           showSpinner = false;
+          // Show Dialog Box 'Please Fill All Fields'
           showDialog(
             context: context,
             builder: (context) {
@@ -169,6 +177,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } else {
       setState(() {
         showSpinner = false;
+        // Show Dialog Box 'Passwords don't match' (password is not equal to re-enter password)
         showDialog(
           context: context,
           builder: (context) {
@@ -218,6 +227,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
+  // Register App Bar
   AppBar registerAppBar() {
     return AppBar(
       automaticallyImplyLeading: false,
@@ -242,10 +252,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: registerAppBar(),
       body: Center(
         child: ModalProgressHUD(
+          // Show Spinner
           inAsyncCall: showSpinner,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Show Error Message
               Visibility(
                 visible: message != '',
                 child: Padding(
